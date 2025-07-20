@@ -1,0 +1,155 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}{% if object %}Editar{% else %}Nuevo{% endif %} Gasto{% endblock page_title %}
+{% block content_title %}{% if object %}Editar{% else %}Nuevo{% endif %} Gasto{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:expense_list' %}">Gastos</a></li>
+<li class="breadcrumb-item active">{% if object %}Editar{% else %}Nuevo{% endif %}</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-{% if object %}edit{% else %}plus{% endif %} mr-1"></i>
+                        {% if object %}Editar{% else %}Crear{% endif %} Gasto
+                    </h3>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.amount.id_for_label }}">{{ form.amount.label }}</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">$</span>
+                                    </div>
+                                    {{ form.amount }}
+                                </div>
+                                {% if form.amount.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.amount.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.category.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.date.id_for_label }}">{{ form.date.label }}</label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i>
+                                {% if object %}Actualizar{% else %}Crear{% endif %} Gasto
+                            </button>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <a href="{% url 'core:expense_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times mr-1"></i>
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Acciones Rápidas
+                    </h3>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'core:expense_create' %}" class="btn btn-success">
+                        <i class="fas fa-plus mr-1"></i>
+                        Agregar Nuevo Gasto
+                    </a>
+                    <a href="{% url 'core:category_create' %}" class="btn btn-info">
+                        <i class="fas fa-folder-plus mr-1"></i>
+                        Agregar Nueva Categoría
+                    </a>
+                    <a href="{% url 'core:expense_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-list mr-1"></i>
+                        Ver Todos los Gastos
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        {% if categories %}
+        <div class="card mt-3">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-folder mr-1"></i>
+                        Categorías Disponibles
+                    </h3>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for category in categories %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ category.name }}
+                        <span class="badge badge-primary badge-pill">${{ category.budget|floatformat:2 }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock main_content %} 

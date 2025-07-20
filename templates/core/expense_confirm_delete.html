@@ -1,0 +1,70 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Eliminar Gasto{% endblock page_title %}
+{% block content_title %}Eliminar Gasto{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:expense_list' %}">Gastos</a></li>
+<li class="breadcrumb-item"><a href="{% url 'core:expense_detail' object.pk %}">{{ object.name }}</a></li>
+<li class="breadcrumb-item active">Eliminar</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card card-danger">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        Confirmar Eliminación
+                    </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h5><i class="icon fas fa-exclamation-triangle"></i> ¡Advertencia!</h5>
+                    ¿Estás seguro de que quieres eliminar el gasto "<strong>{{ object.name }}</strong>"?
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Detalles del Gasto:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Nombre:</strong> {{ object.name }}</li>
+                            <li><strong>Monto:</strong> ${{ object.amount|floatformat:2 }}</li>
+                            <li><strong>Categoría:</strong> {{ object.category.name }}</li>
+                            <li><strong>Fecha:</strong> {{ object.date|date:"F d, Y" }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Impacto:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-times text-danger"></i> Esta acción no se puede deshacer</li>
+                            <li><i class="fas fa-times text-danger"></i> El gasto será eliminado permanentemente</li>
+                            <li><i class="fas fa-info text-info"></i> El presupuesto de la categoría permanecerá sin cambios</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash mr-1"></i>
+                                Sí, Eliminar Gasto
+                            </button>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <a href="{% url 'core:expense_detail' object.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times mr-1"></i>
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %} 

@@ -1,0 +1,137 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Gastos{% endblock page_title %}
+{% block content_title %}Lista de Gastos{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Gastos</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-list mr-1"></i>
+                        Todos los Gastos
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'core:expense_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Agregar Gasto
+                        </a>
+                    </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense.name }}</td>
+                                <td>
+                                    <span class="badge badge-info">{{ expense.category.name }}</span>
+                                </td>
+                                <td>${{ expense.amount|floatformat:2 }}</td>
+                                <td>{{ expense.date|date:"M d, Y" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'core:expense_detail' expense.pk %}" class="btn btn-sm btn-info" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'core:expense_update' expense.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'core:expense_delete' expense.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    <p class="text-muted">No se encontraron gastos.</p>
+                                    <a href="{% url 'core:expense_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Agregar Tu Primer Gasto
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% if is_paginated %}
+            <div class="card-footer clearfix">
+                <ul class="pagination pagination-sm m-0 float-right">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">« Primera</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                                            <span class="page-link">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última »</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-info"><i class="fas fa-dollar-sign"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total de Gastos</span>
+                <span class="info-box-number">${{ total_expenses|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-success"><i class="fas fa-list"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total de Categorías</span>
+                <span class="info-box-number">{{ categories.count }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning"><i class="fas fa-calendar"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Este Mes</span>
+                <span class="info-box-number">{{ expenses.count }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %} 

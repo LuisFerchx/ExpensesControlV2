@@ -1,0 +1,132 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Categorías{% endblock page_title %}
+{% block content_title %}Lista de Categorías{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Categorías</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-folder mr-1"></i>
+                        Todas las Categorías
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'core:category_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Agregar Categoría
+                        </a>
+                    </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Presupuesto</th>
+                                <th>Gastado</th>
+                                <th>Restante</th>
+                                <th>Progreso</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td>{{ category.name }}</td>
+                                <td>${{ category.budget|floatformat:2 }}</td>
+                                <td>${{ category.total_spent|default:0|floatformat:2 }}</td>
+                                <td>
+                                    {% with remaining=category.budget|add:"-"|add:category.total_spent|default:0 %}
+                                        <span class="{% if remaining < 0 %}text-danger{% else %}text-success{% endif %}">
+                                            ${{ remaining|floatformat:2 }}
+                                        </span>
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    {% if category.budget > 0 %}
+                                        {% widthratio category.total_spent|default:0 category.budget 100 as percentage %}
+                                        <div class="progress">
+                                            <div class="progress-bar {% if percentage > 100 %}bg-danger{% elif percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                 style="width: {% if percentage > 100 %}100{% else %}{{ percentage }}{% endif %}%">
+                                                {{ percentage }}%
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">Sin presupuesto</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'core:category_update' category.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'core:category_delete' category.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <p class="text-muted">No se encontraron categorías.</p>
+                                    <a href="{% url 'core:category_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Agregar Tu Primera Categoría
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-info"><i class="fas fa-folder"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total de Categorías</span>
+                <span class="info-box-number">{{ categories.count }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Presupuesto Total</span>
+                <span class="info-box-number">${{ total_budget|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning"><i class="fas fa-chart-line"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total Gastado</span>
+                <span class="info-box-number">${{ total_spent|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="info-box">
+            <span class="info-box-icon bg-primary"><i class="fas fa-wallet"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Restante</span>
+                <span class="info-box-number">${{ total_remaining|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %} 

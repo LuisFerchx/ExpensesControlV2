@@ -1,0 +1,173 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Panel Principal{% endblock page_title %}
+{% block content_title %}Panel de Gastos{% endblock content_title %}
+
+{% block main_content %}
+<div class="row">
+    <!-- Total Expenses Card -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>${{ total_expenses|floatformat:2 }}</h3>
+                <p>Total de Gastos</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <a href="{% url 'core:expense_list' %}" class="small-box-footer">
+                Ver Todos los Gastos <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Total Budget Card -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>${{ total_budget|floatformat:2 }}</h3>
+                <p>Presupuesto Total</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <a href="{% url 'core:category_list' %}" class="small-box-footer">
+                Ver Categorías <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Remaining Budget Card -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box {% if remaining_budget < 0 %}bg-danger{% else %}bg-warning{% endif %}">
+            <div class="inner">
+                <h3>${{ remaining_budget|floatformat:2 }}</h3>
+                <p>Presupuesto Restante</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <a href="{% url 'core:expense_create' %}" class="small-box-footer">
+                Agregar Gasto <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Card -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3>Acciones</h3>
+                <p>Rápidas</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-plus"></i>
+            </div>
+            <a href="{% url 'core:category_create' %}" class="small-box-footer">
+                Agregar Categoría <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Expenses -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-list mr-1"></i>
+                        Gastos Recientes
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'core:expense_list' %}" class="btn btn-primary btn-sm">
+                            Ver Todos
+                        </a>
+                    </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in recent_expenses %}
+                            <tr>
+                                <td>{{ expense.name }}</td>
+                                <td>
+                                    <span class="badge badge-info">{{ expense.category.name }}</span>
+                                </td>
+                                <td>${{ expense.amount|floatformat:2 }}</td>
+                                <td>{{ expense.date|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'core:expense_detail' expense.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'core:expense_update' expense.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No se encontraron gastos.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Summary -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-chart-pie mr-1"></i>
+                        Resumen de Categorías
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'core:category_list' %}" class="btn btn-primary btn-sm">
+                            Ver Todas
+                        </a>
+                    </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Gastado</th>
+                                <th>Presupuesto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in category_summary %}
+                            <tr>
+                                <td>{{ category.name }}</td>
+                                <td>${{ category.total_spent|default:0|floatformat:2 }}</td>
+                                <td>${{ category.budget|floatformat:2 }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No se encontraron categorías.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %} 

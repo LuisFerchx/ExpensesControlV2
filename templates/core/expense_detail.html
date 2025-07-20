@@ -1,0 +1,165 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Detalle del Gasto{% endblock page_title %}
+{% block content_title %}{{ expense.name }}{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:expense_list' %}">Gastos</a></li>
+<li class="breadcrumb-item active">Detalle</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-eye mr-1"></i>
+                        Detalles del Gasto
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'core:expense_update' expense.pk %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="w-25">Nombre:</th>
+                                <td>{{ expense.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Categoría:</th>
+                                <td>
+                                    <span class="badge badge-info">{{ expense.category.name }}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="w-25">Monto:</th>
+                                <td>
+                                    <span class="h4 text-primary">${{ expense.amount|floatformat:2 }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Fecha:</th>
+                                <td>{{ expense.date|date:"F d, Y" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Información de la Categoría</h5>
+                        <div class="info-box bg-light">
+                            <span class="info-box-icon bg-info"><i class="fas fa-folder"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">{{ expense.category.name }}</span>
+                                <span class="info-box-number">Presupuesto: ${{ expense.category.budget|floatformat:2 }}</span>
+                                <div class="progress">
+                                    {% widthratio expense.amount expense.category.budget 100 as percentage %}
+                                    <div class="progress-bar bg-info" style="width: {{ percentage }}%"></div>
+                                </div>
+                                <span class="progress-description">
+                                    Este gasto representa el {{ percentage }}% del presupuesto de la categoría
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{% url 'core:expense_update' expense.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit mr-1"></i>
+                            Editar Gasto
+                        </a>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <a href="{% url 'core:expense_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left mr-1"></i>
+                            Volver a la Lista
+                        </a>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <a href="{% url 'core:expense_delete' expense.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash mr-1"></i>
+                            Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-chart-pie mr-1"></i>
+                        Estadísticas Rápidas
+                    </h3>
+            </div>
+            <div class="card-body">
+                <div class="info-box bg-light mb-3">
+                    <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Presupuesto de Categoría</span>
+                        <span class="info-box-number">${{ expense.category.budget|floatformat:2 }}</span>
+                    </div>
+                </div>
+                
+                <div class="info-box bg-light mb-3">
+                    <span class="info-box-icon bg-warning"><i class="fas fa-percentage"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Presupuesto Usado</span>
+                        {% widthratio expense.amount expense.category.budget 100 as percentage %}
+                        <span class="info-box-number">{{ percentage }}%</span>
+                    </div>
+                </div>
+                
+                <div class="info-box bg-light">
+                    <span class="info-box-icon bg-info"><i class="fas fa-calendar"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Días Atrás</span>
+                        <span class="info-box-number">{{ expense.date|timesince }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                                    <h3 class="card-title">
+                        <i class="fas fa-lightning-bolt mr-1"></i>
+                        Acciones Rápidas
+                    </h3>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'core:expense_create' %}" class="btn btn-success">
+                        <i class="fas fa-plus mr-1"></i>
+                        Agregar Nuevo Gasto
+                    </a>
+                    <a href="{% url 'core:category_list' %}" class="btn btn-info">
+                        <i class="fas fa-folder mr-1"></i>
+                        Ver Categorías
+                    </a>
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt mr-1"></i>
+                        Panel Principal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %} 
