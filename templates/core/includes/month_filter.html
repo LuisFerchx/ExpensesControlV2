@@ -1,0 +1,39 @@
+<!-- Filtro por Mes -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar mr-1"></i>
+                    Filtro por Mes
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="get" class="form-inline">
+                    <div class="form-group mr-2">
+                        <label for="month" class="mr-2">Seleccionar Mes:</label>
+                        <input type="month" 
+                               class="form-control" 
+                               id="month" 
+                               name="month" 
+                               value="{{ month_param|default:'' }}"
+                               onchange="this.form.submit()">
+                    </div>
+                    <button type="submit" class="btn btn-primary mr-2">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    {% if month_param %}
+                    <a href="{{ request.path }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                    {% endif %}
+                </form>
+                {% if selected_month %}
+                <small class="text-muted mt-2 d-block">
+                    Mostrando datos para: <strong>{{ selected_month|date:"F Y" }}</strong>
+                </small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div> 

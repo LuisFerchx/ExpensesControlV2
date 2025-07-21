@@ -54,6 +54,26 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.month_input.id_for_label }}">{{ form.month_input.label }}</label>
+                                {{ form.month_input }}
+                                {% if form.month_input.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.month_input.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if form.month_input.help_text %}
+                                    <small class="form-text text-muted">
+                                        {{ form.month_input.help_text }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <div class="row">
@@ -64,7 +84,7 @@
                             </button>
                         </div>
                         <div class="col-md-6 text-right">
-                            <a href="{% url 'core:category_list' %}" class="btn btn-secondary">
+                            <a href="{% url 'core:category_list' %}{% if request.GET.month %}?month={{ request.GET.month }}{% endif %}" class="btn btn-secondary">
                                 <i class="fas fa-times mr-1"></i>
                                 Cancelar
                             </a>
@@ -85,15 +105,15 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="{% url 'core:category_create' %}" class="btn btn-success">
+                    <a href="{% url 'core:category_create' %}{% if request.GET.month %}?month={{ request.GET.month }}{% endif %}" class="btn btn-success">
                         <i class="fas fa-plus mr-1"></i>
                         Agregar Nueva Categoría
                     </a>
-                    <a href="{% url 'core:expense_create' %}" class="btn btn-info">
+                    <a href="{% url 'core:expense_create' %}{% if request.GET.month %}?month={{ request.GET.month }}{% endif %}" class="btn btn-info">
                         <i class="fas fa-dollar-sign mr-1"></i>
                         Agregar Nuevo Gasto
                     </a>
-                    <a href="{% url 'core:category_list' %}" class="btn btn-secondary">
+                    <a href="{% url 'core:category_list' %}{% if request.GET.month %}?month={{ request.GET.month }}{% endif %}" class="btn btn-secondary">
                         <i class="fas fa-list mr-1"></i>
                         Ver Todas las Categorías
                     </a>
@@ -112,6 +132,7 @@
                                     <ul class="list-unstyled">
                         <li><i class="fas fa-check text-success mr-1"></i> Usa nombres descriptivos para las categorías</li>
                         <li><i class="fas fa-check text-success mr-1"></i> Establece montos de presupuesto realistas</li>
+                        <li><i class="fas fa-check text-success mr-1"></i> Selecciona el mes para organizar por períodos</li>
                         <li><i class="fas fa-check text-success mr-1"></i> Las categorías ayudan a organizar gastos</li>
                         <li><i class="fas fa-check text-success mr-1"></i> Puedes editar las categorías más tarde</li>
                     </ul>

@@ -7,12 +7,12 @@
 {% block content %}
 <div class="login-box">
   <div class="login-logo">
-    <a href="/"><b>Admin</b>LTE</a>
+    <a href="/"><b>Expenses</b>Manager</a>
   </div>
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in to start your session</p>
+      <p class="login-box-msg">Ingrese sus credenciales</p>
 
       <form method="post">
         {% csrf_token %}
@@ -39,13 +39,13 @@
             <div class="icheck-primary">
               <input type="checkbox" id="remember">
               <label for="remember">
-                Remember Me
+                Recordar
               </label>
             </div>
           </div>
           <!-- /.col -->
           <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
           </div>
           <!-- /.col -->
         </div>
@@ -65,9 +65,9 @@
       <!-- /.social-auth-links -->
 
       <p class="mt-5 mb-2 text-center">
-        <a href="{% url 'password_reset' %}">Reset Pass</a>
+        <a href="{% url 'password_reset' %}">Reiniciar Contraseña</a>
         &bull;
-        <a href="{% url 'register' %}" class="text-center">Sign UP</a>
+        <a href="{% url 'register' %}" class="text-center">Registrarme</a>
       </p>
     </div>
     <!-- /.login-card-body -->

@@ -10,10 +10,7 @@ with font-awesome or any other icon font library -->
     {% for app in app_list %}
       {% if app.has_perms and not app.pinned %}
         <li class="nav-item {% if 'dashboard' in parent %}menu-open{% endif %}">
-          <a class="nav-link {% if app_label != app.label and app.url not in request.path|urlencode %}collapsed{% endif %}"
-             data-bs-toggle="collapse"
-             data-bs-target="#submenu-{{ app.app_label }}"
-             href="{{ app.url }}">
+          <a class="nav-link {% if app_label != app.label and app.url not in request.path|urlencode %}collapsed{% endif %}" data-bs-toggle="collapse" data-bs-target="#submenu-{{ app.app_label }}" href="{{ app.url }}">
             <i class="nav-icon {{ app.icon }}"></i>
             <p>
               {{ app.label|slice:10 }}
@@ -26,8 +23,7 @@ with font-awesome or any other icon font library -->
               {% for model in app.models %}
                 {% if model.url %}
                   <li class="nav-item">
-                    <a class="nav-link {% if 'bootstrap-tables' in segment or model.url in request.path|urlencode %}active{% endif %}"
-                       href="{{ model.url }}">
+                    <a class="nav-link {% if 'bootstrap-tables' in segment or model.url in request.path|urlencode %}active{% endif %}" href="{{ model.url }}">
                       <i class="far fa-circle nav-icon"></i>
                       <p>{{ model.label }}</p>
                     </a>
@@ -42,64 +38,67 @@ with font-awesome or any other icon font library -->
       {% endif %}
     {% endfor %}
   {% endif %} {% endcomment %}
-
-  <!-- CRUD Categories -->
-  <li class="nav-item {% if 'categories' in parent %}menu-open{% endif %}">
-    <a href="#" class="nav-link {% if 'categories' in parent %}active{% endif %}">
-      <i class="nav-icon fas fa-tags"></i>
-      <p>
-        Categorías
-        <i class="right fas fa-angle-left"></i>
-      </p>
-    </a>
-    <ul class="nav nav-treeview">
-      <li class="nav-item">
-        <a href="{% url 'core:category_list' %}" class="nav-link {% if 'category' in segment %}active{% endif %}">
-          <i class="far fa-circle nav-icon"></i>
-          <p>Listar Categorías</p>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="{% url 'core:category_create' %}" class="nav-link {% if 'add' in segment and 'category' in segment %}active{% endif %}">
-          <i class="far fa-circle nav-icon"></i>
-          <p>Agregar Categoría</p>
-        </a>
-      </li>
-    </ul>
-  </li>
-
-  <!-- CRUD Expenses -->
-  <li class="nav-item {% if 'expenses' in parent %}menu-open{% endif %}">
-    <a href="#" class="nav-link {% if 'expenses' in parent %}active{% endif %}">
-      <i class="nav-icon fas fa-money-bill-wave"></i>
-      <p>
-        Gastos
-        <i class="right fas fa-angle-left"></i>
-      </p>
-    </a>
-    <ul class="nav nav-treeview">
-      <li class="nav-item">
-        <a href="{% url 'core:expense_list' %}" class="nav-link {% if 'expense' in segment %}active{% endif %}">
-          <i class="far fa-circle nav-icon"></i>
-          <p>Listar Gastos</p>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="{% url 'core:expense_create' %}" class="nav-link {% if 'add' in segment and 'expense' in segment %}active{% endif %}">
-          <i class="far fa-circle nav-icon"></i>
-          <p>Agregar Gasto</p>
-        </a>
-      </li>
-    </ul>
-  </li>
-  <li class="nav-item">
-    <a href="{% url 'core:dashboard' %}" class="nav-link">
-      <i class="nav-icon fas fa-tachometer-alt"></i>
-      <p>Resumen</p>
-    </a>
-  </li>
-
   {% if request.user.is_authenticated %}
+    <li class="nav-item">
+      <a href="{% url 'core:dashboard' %}" class="nav-link">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Resumen</p>
+      </a>
+    </li>
+    <!-- CRUD Categories -->
+    <li class="nav-item {% if 'categories' in parent %}menu-open{% endif %}">
+      <a href="#"
+         class="nav-link {% if 'categories' in parent %}active{% endif %}">
+        <i class="nav-icon fas fa-tags"></i>
+        <p>
+          Categorías
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'core:category_list' %}"
+             class="nav-link {% if 'category' in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Listar Categorías</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'core:category_create' %}"
+             class="nav-link {% if 'add' in segment and 'category' in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Agregar Categoría</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <!-- CRUD Expenses -->
+    <li class="nav-item {% if 'expenses' in parent %}menu-open{% endif %}">
+      <a href="#"
+         class="nav-link {% if 'expenses' in parent %}active{% endif %}">
+        <i class="nav-icon fas fa-money-bill-wave"></i>
+        <p>
+          Gastos
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'core:expense_list' %}"
+             class="nav-link {% if 'expense' in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Listar Gastos</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'core:expense_create' %}"
+             class="nav-link {% if 'add' in segment and 'expense' in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Agregar Gasto</p>
+          </a>
+        </li>
+      </ul>
+    </li>
     <li class="nav-item">
       <a href="{% url 'logout' %}" class="nav-link">
         <i class="fa fa-sign-out-alt nav-icon"></i>
@@ -120,5 +119,4 @@ with font-awesome or any other icon font library -->
       </a>
     </li>
   {% endif %}
-  
 </ul>

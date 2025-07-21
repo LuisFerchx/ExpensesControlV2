@@ -8,6 +8,8 @@
 {% endblock breadcrumb %}
 
 {% block main_content %}
+{% include "core/includes/month_filter.html" %}
+
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -17,7 +19,7 @@
                         Todos los Gastos
                     </h3>
                     <div class="card-tools">
-                        <a href="{% url 'core:expense_create' %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'core:expense_create' %}{% if month_param %}?month={{ month_param }}{% endif %}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Agregar Gasto
                         </a>
                     </div>
@@ -48,10 +50,10 @@
                                         <a href="{% url 'core:expense_detail' expense.pk %}" class="btn btn-sm btn-info" title="View">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{% url 'core:expense_update' expense.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                        <a href="{% url 'core:expense_update' expense.pk %}{% if month_param %}?month={{ month_param }}{% endif %}" class="btn btn-sm btn-warning" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{% url 'core:expense_delete' expense.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                        <a href="{% url 'core:expense_delete' expense.pk %}{% if month_param %}?month={{ month_param }}{% endif %}" class="btn btn-sm btn-danger" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </div>
@@ -76,10 +78,10 @@
                 <ul class="pagination pagination-sm m-0 float-right">
                     {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page=1">« Primera</a>
+                            <a class="page-link" href="?page=1{% if month_param %}&month={{ month_param }}{% endif %}">« Primera</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if month_param %}&month={{ month_param }}{% endif %}">Anterior</a>
                         </li>
                     {% endif %}
                     
@@ -91,10 +93,10 @@
                     
                     {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if month_param %}&month={{ month_param }}{% endif %}">Siguiente</a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última »</a>
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if month_param %}&month={{ month_param }}{% endif %}">Última »</a>
                         </li>
                     {% endif %}
                 </ul>

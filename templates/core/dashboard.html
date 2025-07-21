@@ -4,6 +4,8 @@
 {% block content_title %}Panel de Gastos{% endblock content_title %}
 
 {% block main_content %}
+{% include "core/includes/month_filter.html" %}
+
 <div class="row">
     <!-- Total Expenses Card -->
     <div class="col-lg-3 col-6">
@@ -15,7 +17,7 @@
             <div class="icon">
                 <i class="fas fa-dollar-sign"></i>
             </div>
-            <a href="{% url 'core:expense_list' %}" class="small-box-footer">
+            <a href="{% url 'core:expense_list' %}{% if month_param %}?month={{ month_param }}{% endif %}" class="small-box-footer">
                 Ver Todos los Gastos <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -31,7 +33,7 @@
             <div class="icon">
                 <i class="fas fa-chart-pie"></i>
             </div>
-            <a href="{% url 'core:category_list' %}" class="small-box-footer">
+            <a href="{% url 'core:category_list' %}{% if month_param %}?month={{ month_param }}{% endif %}" class="small-box-footer">
                 Ver Categorías <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -47,7 +49,7 @@
             <div class="icon">
                 <i class="fas fa-wallet"></i>
             </div>
-            <a href="{% url 'core:expense_create' %}" class="small-box-footer">
+            <a href="{% url 'core:expense_create' %}{% if month_param %}?month={{ month_param }}{% endif %}" class="small-box-footer">
                 Agregar Gasto <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -63,7 +65,7 @@
             <div class="icon">
                 <i class="fas fa-plus"></i>
             </div>
-            <a href="{% url 'core:category_create' %}" class="small-box-footer">
+            <a href="{% url 'core:category_create' %}{% if month_param %}?month={{ month_param }}{% endif %}" class="small-box-footer">
                 Agregar Categoría <i class="fas fa-arrow-circle-right"></i>
             </a>
         </div>
@@ -80,7 +82,7 @@
                         Gastos Recientes
                     </h3>
                     <div class="card-tools">
-                        <a href="{% url 'core:expense_list' %}" class="btn btn-primary btn-sm">
+                        <a href="{% url 'core:expense_list' %}{% if month_param %}?month={{ month_param }}{% endif %}" class="btn btn-primary btn-sm">
                             Ver Todos
                         </a>
                     </div>
