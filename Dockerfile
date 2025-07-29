@@ -1,18 +1,45 @@
-FROM python:3.9
+FROM python:3.9-slim
 
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=config.settings
 
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        libpq-dev \
+        default-libmysqlclient-dev \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
-# install python dependencies
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy project
 COPY . .
 
-# running migrations
-RUN python manage.py migrate
+# Create non-root user
+RUN adduser --disabled-password --gecos '' appuser
+RUN chown -R appuser:appuser /app
+USER appuser
 
-# gunicorn
-CMD ["gunicorn", "--config", "gunicorn-cfg.py", "config.wsgi"]
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Expose port
+EXPOSE 5005
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5005/ || exit 1
+
+# Run gunicorn
+CMD ["gunicorn", "--config", "gunicorn-cfg.py", "config.wsgi:application"]

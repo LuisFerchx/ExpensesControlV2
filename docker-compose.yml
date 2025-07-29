@@ -1,24 +1,75 @@
 version: '3.8'
+
 services:
+  db:
+    image: postgres:15
+    container_name: django_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-django_db}
+      POSTGRES_USER: ${DB_USERNAME:-django_user}
+      POSTGRES_PASSWORD: ${DB_PASS:-django_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-django_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   appseed-app:
     container_name: appseed_app
     restart: always
     build: .
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=${SECRET_KEY}
+      - DB_ENGINE=postgresql
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-django_db}
+      - DB_USERNAME=${DB_USERNAME:-django_user}
+      - DB_PASS=${DB_PASS:-django_password}
+      - DB_PORT=5432
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     networks:
       - db_network
       - web_network
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+              python manage.py collectstatic --noinput &&
+              gunicorn --config gunicorn-cfg.py config.wsgi:application"
+
   nginx:
     container_name: nginx
     restart: always
-    image: "nginx:latest"
+    image: nginx:alpine
     ports:
-      - "5085:5085"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - ./nginx/ssl:/etc/nginx/ssl
     networks:
       - web_network
-    depends_on: 
+    depends_on:
       - appseed-app
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
 networks:
   db_network:
     driver: bridge
