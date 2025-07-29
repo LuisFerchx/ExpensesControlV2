@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load filters %}
 {% block page_title %}
     Categorías
 {% endblock page_title %}
@@ -48,9 +49,9 @@
                                             <td>${{ category.budget|floatformat:2 }}</td>
                                             <td>${{ category.total_spent|default:0|floatformat:2 }}</td>
                                             <td>
-                                                {% with remaining=category.budget|add:"-"|add:category.total_spent|default:0 %}
+                                                {% with remaining=category.budget|floatformat:2|resta:category.total_spent|floatformat:2 %}
                                                     <span class="{% if remaining < 0 %}text-danger{% else %}text-success{% endif %}">${{ remaining|floatformat:2 }}</span>
-                                                {% endwith %}
+                                                {% endwith %} 
                                             </td>
                                             <td>
                                                 {% if category.month %}

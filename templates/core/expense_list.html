@@ -33,6 +33,7 @@
                                 <th>Categoría</th>
                                 <th>Monto</th>
                                 <th>Fecha</th>
+                                <th>Tipo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -45,6 +46,7 @@
                                 </td>
                                 <td>${{ expense.amount|floatformat:2 }}</td>
                                 <td>{{ expense.date|date:"M d, Y" }}</td>
+                                <td>{{ expense.get_type_display }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{% url 'core:expense_detail' expense.pk %}" class="btn btn-sm btn-info" title="View">
@@ -61,7 +63,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="5" class="text-center">
+                                <td colspan="6" class="text-center">
                                     <p class="text-muted">No se encontraron gastos.</p>
                                     <a href="{% url 'core:expense_create' %}" class="btn btn-primary">
                                         <i class="fas fa-plus"></i> Agregar Tu Primer Gasto

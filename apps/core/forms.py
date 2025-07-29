@@ -8,7 +8,7 @@ class ExpenseForm(forms.ModelForm):
     
     class Meta:
         model = Expense
-        fields = ['name', 'amount', 'category', 'date']
+        fields = ['name', 'amount', 'category', 'type', 'date']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -21,6 +21,9 @@ class ExpenseForm(forms.ModelForm):
                 'min': '0'
             }),
             'category': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'type': forms.Select(attrs={
                 'class': 'form-control'
             }),
             'date': forms.DateInput(attrs={
@@ -65,7 +68,7 @@ class CategoryForm(forms.ModelForm):
                 'step': '0.01',
                 'min': '0'
             })
-        }
+        } 
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
