@@ -1,6 +1,6 @@
 # Docker Deployment Guide for Django AdminLTE
 
-This guide explains how to deploy the Django AdminLTE application on Ubuntu using Docker.
+This guide explains how to deploy the Django AdminLTE application on Ubuntu using Docker with SSL support for `exmanager.flimboo.com`.
 
 ## 🚀 Quick Start
 
@@ -9,6 +9,7 @@ This guide explains how to deploy the Django AdminLTE application on Ubuntu usin
 1. **Ubuntu Server** (18.04 or later)
 2. **Docker** and **Docker Compose** installed
 3. **Git** for cloning the repository
+4. **Domain DNS** pointing to your server IP
 
 ### Installation Steps
 
@@ -32,6 +33,43 @@ This guide explains how to deploy the Django AdminLTE application on Ubuntu usin
    ./deploy.sh
    ```
 
+## 🔐 SSL Configuration
+
+The application is configured to run with HTTPS on `exmanager.flimboo.com`.
+
+### SSL Certificate Options
+
+1. **Let's Encrypt (Recommended for production)**:
+   ```bash
+   chmod +x ssl-setup.sh
+   ./ssl-setup.sh
+   # Choose option 1 for Let's Encrypt
+   ```
+
+2. **Self-signed certificate (For development/testing)**:
+   ```bash
+   chmod +x ssl-setup.sh
+   ./ssl-setup.sh
+   # Choose option 2 for self-signed
+   ```
+
+### SSL Certificate Renewal
+
+For Let's Encrypt certificates, set up automatic renewal:
+
+```bash
+# Add to crontab for automatic renewal
+sudo crontab -e
+# Add this line:
+0 12 * * * /path/to/your/django-adminlte/ssl-renew.sh
+```
+
+Or manually renew:
+```bash
+chmod +x ssl-renew.sh
+./ssl-renew.sh
+```
+
 ## 📋 Manual Deployment
 
 If you prefer to deploy manually:
@@ -51,10 +89,21 @@ nano .env
 **Important settings to configure:**
 - `SECRET_KEY`: Generate a strong secret key
 - `DEBUG`: Set to `False` for production
-- `ALLOWED_HOSTS`: Add your domain
-- `CSRF_TRUSTED_ORIGINS`: Add your domain with https://
+- `ALLOWED_HOSTS`: Should include `exmanager.flimboo.com`
+- `CSRF_TRUSTED_ORIGINS`: Should include `https://exmanager.flimboo.com`
 
-### 2. Build and Start Containers
+### 2. SSL Certificate Setup
+
+```bash
+# Create SSL directory
+mkdir -p nginx/ssl
+
+# Set up SSL certificates
+chmod +x ssl-setup.sh
+./ssl-setup.sh
+```
+
+### 3. Build and Start Containers
 
 ```bash
 # Build and start all services
@@ -64,7 +113,7 @@ docker-compose up --build -d
 docker-compose ps
 ```
 
-### 3. Database Setup
+### 4. Database Setup
 
 ```bash
 # Run migrations
@@ -83,12 +132,12 @@ The application uses the following Docker services:
 
 - **appseed-app**: Django application (Python 3.9)
 - **db**: PostgreSQL 15 database
-- **nginx**: Web server and reverse proxy
+- **nginx**: Web server and reverse proxy with SSL
 
 ### Ports
 
-- **80**: HTTP (nginx)
-- **443**: HTTPS (nginx, if configured)
+- **80**: HTTP (redirects to HTTPS)
+- **443**: HTTPS (main application)
 - **5432**: PostgreSQL (database)
 
 ## 🔧 Configuration
@@ -105,6 +154,8 @@ The application uses the following Docker services:
 | `DB_USERNAME` | Database user | `django_user` |
 | `DB_PASS` | Database password | `django_password` |
 | `DB_PORT` | Database port | `5432` |
+| `ALLOWED_HOSTS` | Django allowed hosts | `exmanager.flimboo.com,localhost,127.0.0.1` |
+| `CSRF_TRUSTED_ORIGINS` | CSRF trusted origins | `https://exmanager.flimboo.com,http://localhost,http://127.0.0.1` |
 
 ### Volumes
 
@@ -139,6 +190,18 @@ git pull
 docker-compose up --build -d
 ```
 
+### SSL Certificate Management
+```bash
+# Set up SSL certificates
+./ssl-setup.sh
+
+# Renew SSL certificates
+./ssl-renew.sh
+
+# Check certificate expiration
+openssl x509 -in nginx/ssl/cert.pem -text -noout | grep -A 2 "Validity"
+```
+
 ### Database Backup
 ```bash
 docker-compose exec appseed-app python manage.py dbbackup
@@ -153,9 +216,10 @@ docker-compose exec appseed-app python manage.py dbrestore
 
 1. **Change default passwords** in `.env`
 2. **Use strong SECRET_KEY**
-3. **Configure SSL/TLS** for production
+3. **SSL/TLS is configured** for production
 4. **Set up firewall** rules
 5. **Regular backups** of database and media files
+6. **SSL certificate renewal** is automated
 
 ## 📊 Monitoring
 
@@ -164,6 +228,7 @@ docker-compose exec appseed-app python manage.py dbrestore
 The application includes health checks:
 - Database: `pg_isready`
 - Application: `curl -f http://localhost:5005/`
+- SSL: Certificate expiration monitoring
 
 ### Logs
 
@@ -176,24 +241,36 @@ docker-compose logs -f appseed-app
 
 ### Common Issues
 
-1. **Port already in use**:
+1. **SSL certificate issues**:
+   ```bash
+   # Check certificate validity
+   openssl x509 -in nginx/ssl/cert.pem -text -noout
+   
+   # Renew certificates
+   ./ssl-renew.sh
+   ```
+
+2. **Port already in use**:
    ```bash
    sudo netstat -tulpn | grep :80
+   sudo netstat -tulpn | grep :443
    sudo systemctl stop apache2  # if Apache is running
    ```
 
-2. **Permission issues**:
+3. **Permission issues**:
    ```bash
    sudo chown -R $USER:$USER .
+   chmod 600 nginx/ssl/key.pem
+   chmod 644 nginx/ssl/cert.pem
    ```
 
-3. **Database connection issues**:
+4. **Database connection issues**:
    ```bash
    docker-compose logs db
    docker-compose restart db
    ```
 
-4. **Static files not loading**:
+5. **Static files not loading**:
    ```bash
    docker-compose exec appseed-app python manage.py collectstatic --noinput
    ```
@@ -237,10 +314,40 @@ To update the application:
    docker-compose exec appseed-app python manage.py migrate
    ```
 
+4. Renew SSL certificates if needed:
+   ```bash
+   ./ssl-renew.sh
+   ```
+
+## 🌐 Domain Configuration
+
+### DNS Setup
+
+Ensure your domain `exmanager.flimboo.com` points to your server's IP address:
+
+```bash
+# Check if domain resolves correctly
+nslookup exmanager.flimboo.com
+dig exmanager.flimboo.com
+```
+
+### Firewall Configuration
+
+```bash
+# Allow HTTP and HTTPS traffic
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+
+# Enable firewall
+sudo ufw enable
+```
+
 ## 📞 Support
 
 For issues or questions:
 1. Check the logs: `docker-compose logs`
 2. Verify environment variables
 3. Ensure all ports are available
-4. Check Docker and Docker Compose versions 
+4. Check Docker and Docker Compose versions
+5. Verify SSL certificate validity
+6. Check domain DNS configuration 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Django AdminLTE Docker Deployment Script for Ubuntu
-# This script sets up and deploys the Django application on Ubuntu
+# This script sets up and deploys the Django application on Ubuntu with SSL
 
 set -e
 
-echo "🚀 Starting Django AdminLTE deployment..."
+echo "🚀 Starting Django AdminLTE deployment for exmanager.flimboo.com..."
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
@@ -27,8 +27,8 @@ if [ ! -f .env ]; then
     cp env.production .env
     echo "⚠️  Please edit .env file with your production settings before continuing!"
     echo "   - Change SECRET_KEY to a secure value"
-    echo "   - Update ALLOWED_HOSTS with your domain"
-    echo "   - Update CSRF_TRUSTED_ORIGINS with your domain"
+    echo "   - Verify ALLOWED_HOSTS includes exmanager.flimboo.com"
+    echo "   - Verify CSRF_TRUSTED_ORIGINS includes https://exmanager.flimboo.com"
     read -p "Press Enter after editing .env file..."
 fi
 
@@ -37,6 +37,13 @@ mkdir -p media
 
 # Create SSL directory for nginx
 mkdir -p nginx/ssl
+
+# Check if SSL certificates exist
+if [ ! -f nginx/ssl/cert.pem ] || [ ! -f nginx/ssl/key.pem ]; then
+    echo "🔐 SSL certificates not found. Setting up SSL..."
+    chmod +x ssl-setup.sh
+    ./ssl-setup.sh
+fi
 
 # Stop any existing containers
 echo "🛑 Stopping existing containers..."
@@ -69,8 +76,8 @@ docker-compose exec appseed-app python manage.py collectstatic --noinput
 echo "✅ Deployment completed successfully!"
 echo ""
 echo "🌐 Your application is now running at:"
-echo "   - HTTP: http://localhost"
-echo "   - Admin: http://localhost/admin"
+echo "   - HTTPS: https://exmanager.flimboo.com"
+echo "   - Admin: https://exmanager.flimboo.com/admin"
 echo ""
 echo "📊 Container status:"
 docker-compose ps
@@ -79,4 +86,5 @@ echo "📝 Useful commands:"
 echo "   - View logs: docker-compose logs -f"
 echo "   - Stop: docker-compose down"
 echo "   - Restart: docker-compose restart"
-echo "   - Update: git pull && docker-compose up --build -d" 
+echo "   - Update: git pull && docker-compose up --build -d"
+echo "   - SSL renewal: ./ssl-setup.sh" 

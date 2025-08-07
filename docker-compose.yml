@@ -34,6 +34,8 @@ services:
       - DB_USERNAME=${DB_USERNAME:-django_user}
       - DB_PASS=${DB_PASS:-django_password}
       - DB_PORT=5432
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-exmanager.flimboo.com,localhost,127.0.0.1}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-https://exmanager.flimboo.com,http://localhost,http://127.0.0.1}
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
@@ -59,7 +61,7 @@ services:
       - ./nginx:/etc/nginx/conf.d
       - static_volume:/app/staticfiles
       - media_volume:/app/media
-      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/ssl:/etc/nginx/ssl:ro
     networks:
       - web_network
     depends_on:
