@@ -1,0 +1,83 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}Tarjetas{% endblock page_title %}
+{% block content_title %}Lista de Tarjetas{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Tarjetas</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-credit-card mr-1"></i>
+                    Todas mis Tarjetas
+                </h3>
+                <div class="card-tools">
+                    <a href="{% url 'core:card_create' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Agregar Tarjeta
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Correo Asociado</th>
+                                <th>Día de Corte</th>
+                                <th>Día de Pago</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for card in cards %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 15px; height: 15px; border-radius: 50%; background-color: {{ card.color }}; border: 1px solid #ccc;" class="mr-2"></div>
+                                        {{ card.name }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge {% if card.type == 'credit' %}badge-warning{% elif card.type == 'debit' %}badge-success{% else %}badge-secondary{% endif %}">
+                                        {{ card.get_type_display|default:"No especificado" }}
+                                    </span>
+                                </td>
+                                <td>{{ card.mail|default:"-" }}</td>
+                                <td>{{ card.cut_off_day }}</td>
+                                <td>{{ card.payment_day }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'core:card_update' card.pk %}" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'core:card_delete' card.pk %}" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">
+                                    <p class="text-muted">No se encontraron tarjetas.</p>
+                                    <a href="{% url 'core:card_create' %}" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Agregar Tu Primera Tarjeta
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

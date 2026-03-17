@@ -34,6 +34,7 @@
                                 <th>Monto</th>
                                 <th>Fecha</th>
                                 <th>Tipo</th>
+                                <th>Tarjeta</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -46,7 +47,18 @@
                                 </td>
                                 <td>${{ expense.amount|floatformat:2 }}</td>
                                 <td>{{ expense.date|date:"M d, Y" }}</td>
-                                <td>{{ expense.get_type_display }}</td>
+                                <td>
+                                    <span class="badge {% if expense.type == 'card' %}badge-warning{% elif expense.type == 'cash' %}badge-success{% else %}badge-secondary{% endif %}">
+                                        {{ expense.get_type_display|default:"-" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if expense.card %}
+                                        <span class="badge badge-primary">{{ expense.card.name }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{% url 'core:expense_detail' expense.pk %}" class="btn btn-sm btn-info" title="View">
@@ -63,7 +75,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6" class="text-center">
+                                <td colspan="7" class="text-center">
                                     <p class="text-muted">No se encontraron gastos.</p>
                                     <a href="{% url 'core:expense_create' %}" class="btn btn-primary">
                                         <i class="fas fa-plus"></i> Agregar Tu Primer Gasto

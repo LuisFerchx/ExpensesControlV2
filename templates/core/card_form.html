@@ -1,0 +1,180 @@
+{% extends "core/base.html" %}
+
+{% block page_title %}{% if object %}Editar{% else %}Nueva{% endif %} Tarjeta{% endblock page_title %}
+{% block content_title %}{% if object %}Editar{% else %}Nueva{% endif %} Tarjeta{% endblock content_title %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'core:card_list' %}">Tarjetas</a></li>
+<li class="breadcrumb-item active">{% if object %}Editar{% else %}Nueva{% endif %}</li>
+{% endblock breadcrumb %}
+
+{% block main_content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{% if object %}edit{% else %}plus{% endif %} mr-1"></i>
+                    {% if object %}Editar{% else %}Crear{% endif %} Tarjeta
+                </h3>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.type.id_for_label }}">{{ form.type.label }}</label>
+                                {{ form.type }}
+                                {% if form.type.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.type.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="{{ form.color.id_for_label }}">{{ form.color.label }}</label>
+                                {{ form.color }}
+                                {% if form.color.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.color.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Añade un color para identificar esta tarjeta visualmente.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.mail.id_for_label }}">{{ form.mail.label }}</label>
+                                {{ form.mail }}
+                                {% if form.mail.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.mail.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.mail_subject.id_for_label }}">{{ form.mail_subject.label }}</label>
+                                {{ form.mail_subject }}
+                                {% if form.mail_subject.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.mail_subject.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="{{ form.cut_off_day.id_for_label }}">{{ form.cut_off_day.label }}</label>
+                                {{ form.cut_off_day }}
+                                {% if form.cut_off_day.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.cut_off_day.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="{{ form.payment_day.id_for_label }}">{{ form.payment_day.label }}</label>
+                                {{ form.payment_day }}
+                                {% if form.payment_day.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.payment_day.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="{{ form.expiration_date.id_for_label }}">{{ form.expiration_date.label }}</label>
+                                {{ form.expiration_date }}
+                                {% if form.expiration_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.expiration_date.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i>
+                                {% if object %}Actualizar{% else %}Crear{% endif %} Tarjeta
+                            </button>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <a href="{% url 'core:card_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times mr-1"></i>
+                                Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Ayuda
+                </h3>
+            </div>
+            <div class="card-body">
+                <p>Las tarjetas se utilizarán para registrar pagos de gastos.</p>
+                <ul>
+                    <li><strong>Día de corte:</strong> Día del mes en que tu tarjeta genera estado de cuenta.</li>
+                    <li><strong>Día de pago:</strong> Fecha límite para pagar.</li>
+                    <li><strong>Correo y Asunto:</strong> Utilizados si se habilitan opciones de correos automatizados sobre gastos.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

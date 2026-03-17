@@ -99,6 +99,40 @@ with font-awesome or any other icon font library -->
         </li>
       </ul>
     </li>
+    <!-- CRUD Cards -->
+    <li class="nav-item {% if 'cards' in parent %}menu-open{% endif %}">
+      <a href="#"
+         class="nav-link {% if 'cards' in parent %}active{% endif %}">
+        <i class="nav-icon fas fa-credit-card"></i>
+        <p>
+          Tarjetas
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url 'core:card_list' %}"
+             class="nav-link {% if 'card' in segment and 'sync' not in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Listar Tarjetas</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'core:card_sync_list' %}"
+             class="nav-link {% if 'sync' in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Sincronizar Gastos</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'core:card_create' %}"
+             class="nav-link {% if 'add' in segment and 'card' in segment %}active{% endif %}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>Agregar Tarjeta</p>
+          </a>
+        </li>
+      </ul>
+    </li>
     <li class="nav-item">
       <a href="{% url 'logout' %}" class="nav-link">
         <i class="fa fa-sign-out-alt nav-icon"></i>

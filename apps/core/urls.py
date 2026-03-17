@@ -19,4 +19,12 @@ urlpatterns = [
     path('categories/create/', views.CategoryCreateView.as_view(), name='category_create'),
     path('categories/<int:pk>/update/', views.CategoryUpdateView.as_view(), name='category_update'),
     path('categories/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='category_delete'),
+    
+    # Card URLs
+    path('cards/', views.CardListView.as_view(), name='card_list'),
+    path('cards/sync/', views.CardSyncListView.as_view(), name='card_sync_list'),
+    path('cards/<int:pk>/sync-action/', views.sync_card_action, name='card_sync_action'),
+    path('cards/create/', views.CardCreateView.as_view(), name='card_create'),
+    path('cards/<int:pk>/update/', views.CardUpdateView.as_view(), name='card_update'),
+    path('cards/<int:pk>/delete/', views.CardDeleteView.as_view(), name='card_delete'),
 ] 

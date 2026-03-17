@@ -3,11 +3,12 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.utils import timezone
 from datetime import datetime, date
-from .models import Expense, Category
-from .forms import ExpenseForm, CategoryForm
+from .models import Expense, Category, Card
+from .forms import ExpenseForm, CategoryForm, CardForm
 
 
 class ExpenseListView(LoginRequiredMixin, ListView):
@@ -45,10 +46,8 @@ class ExpenseListView(LoginRequiredMixin, ListView):
             except ValueError:
                 pass
         
-        # Filtrar categorías por mes si se selecciona
+        # Categorías son globales ahora, no se filtran por mes
         categories_queryset = Category.objects.filter(user=self.request.user)
-        if selected_month:
-            categories_queryset = categories_queryset.filter(month__year=selected_month.year, month__month=selected_month.month)
         
         context['categories'] = categories_queryset
         
@@ -60,13 +59,18 @@ class ExpenseListView(LoginRequiredMixin, ListView):
         context['total_expenses'] = expenses_queryset.aggregate(total=Sum('amount'))['total'] or 0
         
         # Calcular totales por categoría filtrados por mes
+        from django.db.models import Q
         category_totals = Category.objects.filter(user=self.request.user)
-        if selected_month:
-            category_totals = category_totals.filter(month__year=selected_month.year, month__month=selected_month.month)
         
-        category_totals = category_totals.annotate(
-            total_spent=Sum('expenses__amount')
-        ).values('name', 'budget', 'total_spent')
+        if selected_month:
+            expense_filter = Q(expenses__date__year=selected_month.year, expenses__date__month=selected_month.month)
+            category_totals = category_totals.annotate(
+                total_spent=Sum('expenses__amount', filter=expense_filter)
+            ).values('name', 'budget', 'total_spent')
+        else:
+            category_totals = category_totals.annotate(
+                total_spent=Sum('expenses__amount')
+            ).values('name', 'budget', 'total_spent')
         
         context['category_totals'] = category_totals
         context['selected_month'] = selected_month
@@ -94,18 +98,7 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Filtrar categorías por mes si se proporciona
-        month_param = self.request.GET.get('month')
-        categories_queryset = Category.objects.filter(user=self.request.user)
-        
-        if month_param:
-            try:
-                month_date = datetime.strptime(month_param, '%Y-%m').date()
-                categories_queryset = categories_queryset.filter(month__year=month_date.year, month__month=month_date.month)
-            except ValueError:
-                pass
-        
-        form.fields['category'].queryset = categories_queryset
+        form.fields['category'].queryset = Category.objects.filter(user=self.request.user)
         return form
     
     def get_success_url(self):
@@ -136,18 +129,7 @@ class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Filtrar categorías por mes si se proporciona
-        month_param = self.request.GET.get('month')
-        categories_queryset = Category.objects.filter(user=self.request.user)
-        
-        if month_param:
-            try:
-                month_date = datetime.strptime(month_param, '%Y-%m').date()
-                categories_queryset = categories_queryset.filter(month__year=month_date.year, month__month=month_date.month)
-            except ValueError:
-                pass
-        
-        form.fields['category'].queryset = categories_queryset
+        form.fields['category'].queryset = Category.objects.filter(user=self.request.user)
         return form
     
     def get_success_url(self):
@@ -196,18 +178,7 @@ class CategoryListView(LoginRequiredMixin, ListView):
     ordering = ['name']
     
     def get_queryset(self):
-        queryset = Category.objects.filter(user=self.request.user)
-        
-        # Filtrar por mes si se proporciona
-        month_param = self.request.GET.get('month')
-        if month_param:
-            try:
-                month_date = datetime.strptime(month_param, '%Y-%m').date()
-                queryset = queryset.filter(month__year=month_date.year, month__month=month_date.month)
-            except ValueError:
-                pass
-        
-        return queryset
+        return Category.objects.filter(user=self.request.user)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -221,14 +192,18 @@ class CategoryListView(LoginRequiredMixin, ListView):
             except ValueError:
                 pass
         
-        # Get categories with total spent
         categories_with_totals = Category.objects.filter(user=self.request.user)
-        if selected_month:
-            categories_with_totals = categories_with_totals.filter(month__year=selected_month.year, month__month=selected_month.month)
         
-        categories_with_totals = categories_with_totals.annotate(
-            total_spent=Sum('expenses__amount')
-        )
+        from django.db.models import Q
+        if selected_month:
+            expense_filter = Q(expenses__date__year=selected_month.year, expenses__date__month=selected_month.month)
+            categories_with_totals = categories_with_totals.annotate(
+                total_spent=Sum('expenses__amount', filter=expense_filter)
+            )
+        else:
+            categories_with_totals = categories_with_totals.annotate(
+                total_spent=Sum('expenses__amount')
+            )
         context['categories'] = categories_with_totals
         
         # Calculate summary statistics
@@ -327,17 +302,22 @@ def dashboard(request):
     
     total_expenses = expenses_queryset.aggregate(total=Sum('amount'))['total'] or 0
     
-    # Filtrar categorías por mes si se selecciona
+    # Filtrar categorías
     categories_queryset = Category.objects.filter(user=request.user)
-    if selected_month:
-        categories_queryset = categories_queryset.filter(month__year=selected_month.year, month__month=selected_month.month)
     
     total_budget = categories_queryset.aggregate(total=Sum('budget'))['total'] or 0
     remaining_budget = total_budget - total_expenses
     
-    category_summary = categories_queryset.annotate(
-        total_spent=Sum('expenses__amount')
-    ).values('name', 'budget', 'total_spent')
+    from django.db.models import Q
+    if selected_month:
+        expense_filter = Q(expenses__date__year=selected_month.year, expenses__date__month=selected_month.month)
+        category_summary = categories_queryset.annotate(
+            total_spent=Sum('expenses__amount', filter=expense_filter)
+        ).values('name', 'budget', 'total_spent')
+    else:
+        category_summary = categories_queryset.annotate(
+            total_spent=Sum('expenses__amount')
+        ).values('name', 'budget', 'total_spent')
     
     recent_expenses = expenses_queryset.select_related('category').order_by('-date')[:5]
     
@@ -352,3 +332,123 @@ def dashboard(request):
     }
     
     return render(request, 'core/dashboard.html', context)
+
+# Vistas de Tarjetas
+class CardListView(LoginRequiredMixin, ListView):
+    """Vista para listar todas las tarjetas"""
+    model = Card
+    template_name = 'core/card_list.html'
+    context_object_name = 'cards'
+    ordering = ['name']
+    
+    def get_queryset(self):
+        return Card.objects.filter(user=self.request.user)
+
+
+class CardCreateView(LoginRequiredMixin, CreateView):
+    """Vista para crear nuevas tarjetas"""
+    model = Card
+    form_class = CardForm
+    template_name = 'core/card_form.html'
+    success_url = reverse_lazy('core:card_list')
+    
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, '¡Tarjeta creada exitosamente!')
+        return super().form_valid(form)
+
+
+class CardUpdateView(LoginRequiredMixin, UpdateView):
+    """Vista para actualizar tarjetas existentes"""
+    model = Card
+    form_class = CardForm
+    template_name = 'core/card_form.html'
+    success_url = reverse_lazy('core:card_list')
+    
+    def get_queryset(self):
+        return Card.objects.filter(user=self.request.user)
+    
+    def form_valid(self, form):
+        messages.success(self.request, '¡Tarjeta actualizada exitosamente!')
+        return super().form_valid(form)
+
+
+class CardDeleteView(LoginRequiredMixin, DeleteView):
+    """Vista para eliminar tarjetas"""
+    model = Card
+    template_name = 'core/card_confirm_delete.html'
+    success_url = reverse_lazy('core:card_list')
+    
+    def get_queryset(self):
+        return Card.objects.filter(user=self.request.user)
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, '¡Tarjeta eliminada exitosamente!')
+        return super().delete(request, *args, **kwargs)
+
+class CardSyncListView(LoginRequiredMixin, ListView):
+    """Vista para sincronizar gastos de tarjetas de crédito"""
+    model = Card
+    template_name = 'core/card_sync.html'
+    context_object_name = 'cards'
+    
+    def get_queryset(self):
+        return Card.objects.filter(user=self.request.user, type='credit')
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Obtener el mes y año seleccionado
+        month_param = self.request.GET.get('month')
+        if not month_param:
+            # Por defecto el mes actual
+            now = timezone.now()
+            month_param = f"{now.year}-{now.month:02d}"
+            
+        context['month_param'] = month_param
+        try:
+            year_str, month_str = month_param.split('-')
+            context['target_year'] = int(year_str)
+            context['target_month'] = int(month_str)
+        except ValueError:
+            now = timezone.now()
+            context['target_year'] = now.year
+            context['target_month'] = now.month
+            
+        return context
+
+@login_required
+def sync_card_action(request, pk):
+    """Acción para ejecutar la sincronización de una tarjeta específica"""
+    if request.method != 'POST':
+        return redirect('core:card_sync_list')
+        
+    card = get_object_or_404(Card, pk=pk, user=request.user)
+    
+    month_param = request.POST.get('month')
+    try:
+        if month_param:
+            year_str, month_str = month_param.split('-')
+            target_year = int(year_str)
+            target_month = int(month_str)
+        else:
+            now = timezone.now()
+            target_year = now.year
+            target_month = now.month
+            
+        from .services.expense_sync import sync_card_expenses
+        created, msg = sync_card_expenses(card.id, target_month, target_year)
+        
+        if created > 0:
+            messages.success(request, f'¡Sincronización exitosa! {msg}')
+        else:
+            messages.warning(request, f'No se crearon gastos nuevos. {msg}')
+            
+    except Exception as e:
+        messages.error(request, f'Error durante la sincronización: {str(e)}')
+        
+    # Redirect back to sync list, preserving the month filter
+    url = reverse_lazy('core:card_sync_list')
+    if month_param:
+        return redirect(f"{url}?month={month_param}")
+    return redirect(url)

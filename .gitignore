@@ -7,8 +7,10 @@
 /node_modules/
 build/
 env
+venv
 /staticfiles/
-
+/venv/
+/venv
 #src
 #*.sqlite*
 

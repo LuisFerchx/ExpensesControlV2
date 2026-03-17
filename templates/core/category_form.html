@@ -54,26 +54,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="{{ form.month_input.id_for_label }}">{{ form.month_input.label }}</label>
-                                {{ form.month_input }}
-                                {% if form.month_input.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.month_input.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                {% if form.month_input.help_text %}
-                                    <small class="form-text text-muted">
-                                        {{ form.month_input.help_text }}
-                                    </small>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="card-footer">
                     <div class="row">
@@ -129,10 +109,9 @@
                     </h3>
             </div>
             <div class="card-body">
-                                    <ul class="list-unstyled">
+                    <ul class="list-unstyled">
                         <li><i class="fas fa-check text-success mr-1"></i> Usa nombres descriptivos para las categorías</li>
                         <li><i class="fas fa-check text-success mr-1"></i> Establece montos de presupuesto realistas</li>
-                        <li><i class="fas fa-check text-success mr-1"></i> Selecciona el mes para organizar por períodos</li>
                         <li><i class="fas fa-check text-success mr-1"></i> Las categorías ayudan a organizar gastos</li>
                         <li><i class="fas fa-check text-success mr-1"></i> Puedes editar las categorías más tarde</li>
                     </ul>

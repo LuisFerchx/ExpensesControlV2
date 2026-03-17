@@ -82,6 +82,20 @@
                                 {% endif %}
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.card.id_for_label }}">{{ form.card.label }}</label>
+                                {{ form.card }}
+                                {% if form.card.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.card.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Requerido solo si el tipo es Tarjeta.</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">

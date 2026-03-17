@@ -1,5 +1,5 @@
 from django import forms
-from .models import Expense, Category
+from .models import Expense, Category, Card
 from datetime import datetime, date
 
 
@@ -8,7 +8,7 @@ class ExpenseForm(forms.ModelForm):
     
     class Meta:
         model = Expense
-        fields = ['name', 'amount', 'category', 'type', 'date']
+        fields = ['name', 'amount', 'category', 'type', 'card', 'date']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -24,6 +24,9 @@ class ExpenseForm(forms.ModelForm):
                 'class': 'form-control'
             }),
             'type': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'card': forms.Select(attrs={
                 'class': 'form-control'
             }),
             'date': forms.DateInput(attrs={
@@ -42,18 +45,6 @@ class ExpenseForm(forms.ModelForm):
 class CategoryForm(forms.ModelForm):
     """Formulario para crear y actualizar objetos Categoría"""
     
-    # Campo personalizado para mes
-    month_input = forms.CharField(
-        label="Mes",
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'type': 'month',
-            'placeholder': 'Selecciona un mes'
-        }),
-        help_text="Selecciona el mes para el cual se aplicará esta categoría y presupuesto."
-    )
-    
     class Meta:
         model = Category
         fields = ['name', 'budget']
@@ -68,33 +59,47 @@ class CategoryForm(forms.ModelForm):
                 'step': '0.01',
                 'min': '0'
             })
-        } 
+        }
+
+class CardForm(forms.ModelForm):
+    """Formulario para crear y actualizar objetos Tarjeta"""
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Establecer el valor inicial del campo month_input
-        if self.instance.pk and self.instance.month:
-            self.fields['month_input'].initial = self.instance.month.strftime('%Y-%m')
-    
-    def clean_month_input(self):
-        """Validación personalizada para el campo month_input"""
-        month_value = self.cleaned_data.get('month_input')
-        if not month_value:
-            return None
-        
-        try:
-            # Parsear YYYY-MM a datetime
-            month_date = datetime.strptime(month_value, '%Y-%m')
-            # Retornar el primer día del mes
-            return month_date.replace(day=1).date()
-        except ValueError:
-            raise forms.ValidationError("Por favor ingresa un mes válido en formato YYYY-MM (ejemplo: 2024-01)")
-    
-    def save(self, commit=True):
-        """Guardar el formulario y asignar el valor del mes"""
-        instance = super().save(commit=False)
-        instance.month = self.cleaned_data.get('month_input')
-        
-        if commit:
-            instance.save()
-        return instance 
+    class Meta:
+        model = Card
+        fields = ['name', 'type', 'color', 'mail', 'mail_subject', 'cut_off_day', 'payment_day', 'expiration_date']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese el nombre de la tarjeta'
+            }),
+            'type': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'color': forms.TextInput(attrs={
+                'class': 'form-control form-control-color',
+                'type': 'color',
+                'style': 'max-width: 100%; height: calc(2.25rem + 2px);'
+            }),
+            'mail': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'correo@ejemplo.com'
+            }),
+            'mail_subject': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Asunto del correo para notificaciones'
+            }),
+            'cut_off_day': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'max': '31'
+            }),
+            'payment_day': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'max': '31'
+            }),
+            'expiration_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            })
+        }

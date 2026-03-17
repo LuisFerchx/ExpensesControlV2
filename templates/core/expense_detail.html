@@ -51,6 +51,22 @@
                                 <th>Fecha:</th>
                                 <td>{{ expense.date|date:"F d, Y" }}</td>
                             </tr>
+                            <tr>
+                                <th>Tipo de Pago:</th>
+                                <td>
+                                    <span class="badge {% if expense.type == 'card' %}badge-warning{% elif expense.type == 'cash' %}badge-success{% else %}badge-secondary{% endif %}">
+                                        {{ expense.get_type_display|default:"No especificado" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% if expense.card %}
+                            <tr>
+                                <th>Tarjeta:</th>
+                                <td>
+                                    <span class="badge badge-primary">{{ expense.card.name }}</span>
+                                </td>
+                            </tr>
+                            {% endif %}
                         </table>
                     </div>
                 </div>
